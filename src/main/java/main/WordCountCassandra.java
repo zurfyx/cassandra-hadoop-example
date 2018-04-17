@@ -83,9 +83,9 @@ public class WordCountCassandra {
 
         // System.currentTimeMillis()
         job.setOutputFormatClass(CqlOutputFormat.class);
-        ConfigHelper.setOutputColumnFamily(job.getConfiguration(), "nyao", "messages2");
+        ConfigHelper.setOutputColumnFamily(job.getConfiguration(), "nyao", "count");
 //        String query = "INSERT INTO hadoop (bucket, timestamp, result) VALUES (1, "+ System.currentTimeMillis() + ", ?)";
-        String query = "UPDATE nyao.messages2 SET bucket msg = ? ";
+        String query = "UPDATE count SET msg = ?";
         CqlConfigHelper.setOutputCql(job.getConfiguration(), query);
         ConfigHelper.setOutputInitialAddress(job.getConfiguration(), "206.189.16.183");
         ConfigHelper.setOutputPartitioner(job.getConfiguration(), "Murmur3Partitioner");
