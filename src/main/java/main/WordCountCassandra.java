@@ -2,12 +2,12 @@ package main;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import org.apache.cassandra.hadoop.ConfigHelper;
 import org.apache.cassandra.hadoop.cql3.CqlConfigHelper;
 //import org.apache.cassandra.hadoop.cql3.CqlInputFormat;
+import org.apache.cassandra.hadoop.cql3.CqlOutputFormat;
 import org.apache.cassandra.hadoop.cql3.CqlPagingInputFormat;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.hadoop.conf.Configuration;
@@ -40,7 +40,7 @@ public class WordCountCassandra {
     }
 
     public static class IntSumReducer
-            extends Reducer<Text, IntWritable, Text, IntWritable> {
+            extends Reducer<Text, IntWritable, Map<String, ByteBuffer>, List<ByteBuffer>> {
         private IntWritable result = new IntWritable();
 
         public void reduce(Text key, Iterable<IntWritable> values,
@@ -51,7 +51,13 @@ public class WordCountCassandra {
                 sum += val.get();
             }
             result.set(sum);
-            context.write(key, result);
+
+            Map<String, ByteBuffer> keys = new LinkedHashMap<String, ByteBuffer>();
+            keys.put("name", ByteBufferUtil.bytes(key.toString()));
+
+            List<ByteBuffer> variables = new ArrayList<ByteBuffer>();
+            variables.add(ByteBufferUtil.bytes(sum));
+            context.write(keys, variables);
         }
     }
 
@@ -61,19 +67,28 @@ public class WordCountCassandra {
         Job job = Job.getInstance(conf, "word count cassandra");
         job.setJarByClass(WordCountCassandra.class);
         job.setMapperClass(TokenizerMapper.class);
-        job.setCombinerClass(IntSumReducer.class);
+//        job.setCombinerClass(IntSumReducer.class);
         job.setReducerClass(IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
 
 //        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+//        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         ConfigHelper.setInputInitialAddress(job.getConfiguration(), "206.189.16.183");
         ConfigHelper.setInputColumnFamily(job.getConfiguration(), "nyao", "simple");
         ConfigHelper.setInputPartitioner(job.getConfiguration(), "Murmur3Partitioner");
         CqlConfigHelper.setInputCQLPageRowSize(job.getConfiguration(), "3");
         job.setInputFormatClass(CqlPagingInputFormat.class);
+
+        // System.currentTimeMillis()
+        job.setOutputFormatClass(CqlOutputFormat.class);
+        ConfigHelper.setOutputColumnFamily(job.getConfiguration(), "nyao", "messages2");
+//        String query = "INSERT INTO hadoop (bucket, timestamp, result) VALUES (1, "+ System.currentTimeMillis() + ", ?)";
+        String query = "UPDATE nyao.messages2 SET bucket msg = ? ";
+        CqlConfigHelper.setOutputCql(job.getConfiguration(), query);
+        ConfigHelper.setOutputInitialAddress(job.getConfiguration(), "206.189.16.183");
+        ConfigHelper.setOutputPartitioner(job.getConfiguration(), "Murmur3Partitioner");
 
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
