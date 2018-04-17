@@ -1,3 +1,5 @@
+package main;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -5,6 +7,7 @@ import java.util.StringTokenizer;
 
 import org.apache.cassandra.hadoop.ConfigHelper;
 import org.apache.cassandra.hadoop.cql3.CqlConfigHelper;
+//import org.apache.cassandra.hadoop.cql3.CqlInputFormat;
 import org.apache.cassandra.hadoop.cql3.CqlPagingInputFormat;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.hadoop.conf.Configuration;
@@ -14,8 +17,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.log4j.BasicConfigurator;
 
 public class WordCountCassandra {
 
@@ -53,6 +56,7 @@ public class WordCountCassandra {
     }
 
     public static void main(String[] args) throws Exception {
+        BasicConfigurator.configure();
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "word count cassandra");
         job.setJarByClass(WordCountCassandra.class);
