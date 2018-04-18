@@ -20,6 +20,8 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.log4j.BasicConfigurator;
 
+import javax.sound.midi.Soundbank;
+
 public class WordCountCassandra {
 
     public static class TokenizerMapper
@@ -30,12 +32,10 @@ public class WordCountCassandra {
 
         public void map(Map<String, ByteBuffer> keys, Map<String, ByteBuffer> columns, Context context
         ) throws IOException, InterruptedException {
-            String foo = ByteBufferUtil.string(columns.get("foo"));
-            StringTokenizer itr = new StringTokenizer(foo);
-            while (itr.hasMoreTokens()) {
-                word.set(itr.nextToken());
-                context.write(word, one);
-            }
+            ByteBuffer agentBytes = columns.get("agent");
+            String agent = agentBytes == null ? "-" : ByteBufferUtil.string(agentBytes);
+            word.set(agent);
+            context.write(word, one);
         }
     }
 
@@ -76,9 +76,9 @@ public class WordCountCassandra {
 //        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         ConfigHelper.setInputInitialAddress(job.getConfiguration(), "206.189.16.183");
-        ConfigHelper.setInputColumnFamily(job.getConfiguration(), "nyao", "simple");
+        ConfigHelper.setInputColumnFamily(job.getConfiguration(), "nyao", "visitors");
         ConfigHelper.setInputPartitioner(job.getConfiguration(), "Murmur3Partitioner");
-        CqlConfigHelper.setInputCQLPageRowSize(job.getConfiguration(), "3");
+        CqlConfigHelper.setInputCQLPageRowSize(job.getConfiguration(), "200");
         job.setInputFormatClass(CqlPagingInputFormat.class);
 
         // System.currentTimeMillis()
