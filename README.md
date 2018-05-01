@@ -1,6 +1,6 @@
 # Cassandra Hadoop Example
 
-A modification of the [Apache WordCount](http://grepcode.com/file/repo1.maven.org/maven2/org.apache.hadoop/hadoop-mapreduce-examples/2.6.0/org/apache/hadoop/examples/WordCount.java) to count different browser agents on a live Cassandra database.
+A modification of the [Apache WordCount](http://grepcode.com/file/repo1.maven.org/maven2/org.apache.hadoop/hadoop-mapreduce-examples/2.6.0/org/apache/hadoop/examples/WordCount.java) to count different browser agents on a live Cassandra cluster.
 
 ## Getting started
 
