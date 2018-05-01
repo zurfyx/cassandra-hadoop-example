@@ -6,21 +6,16 @@ import java.util.*;
 
 import org.apache.cassandra.hadoop.ConfigHelper;
 import org.apache.cassandra.hadoop.cql3.CqlConfigHelper;
-//import org.apache.cassandra.hadoop.cql3.CqlInputFormat;
 import org.apache.cassandra.hadoop.cql3.CqlOutputFormat;
 import org.apache.cassandra.hadoop.cql3.CqlPagingInputFormat;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.log4j.BasicConfigurator;
-
-import javax.sound.midi.Soundbank;
 
 public class WordCountCassandra {
 
@@ -67,13 +62,9 @@ public class WordCountCassandra {
         Job job = Job.getInstance(conf, "word count cassandra");
         job.setJarByClass(WordCountCassandra.class);
         job.setMapperClass(TokenizerMapper.class);
-//        job.setCombinerClass(IntSumReducer.class);
         job.setReducerClass(IntSumReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-
-//        FileInputFormat.addInputPath(job, new Path(args[0]));
-//        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         ConfigHelper.setInputInitialAddress(job.getConfiguration(), "206.189.16.183");
         ConfigHelper.setInputColumnFamily(job.getConfiguration(), "nyao", "visitors");
@@ -81,10 +72,8 @@ public class WordCountCassandra {
         CqlConfigHelper.setInputCQLPageRowSize(job.getConfiguration(), "200");
         job.setInputFormatClass(CqlPagingInputFormat.class);
 
-        // System.currentTimeMillis()
         job.setOutputFormatClass(CqlOutputFormat.class);
         ConfigHelper.setOutputColumnFamily(job.getConfiguration(), "nyao", "count");
-//        String query = "INSERT INTO hadoop (bucket, timestamp, result) VALUES (1, "+ System.currentTimeMillis() + ", ?)";
         String query = "UPDATE count SET msg = ?";
         CqlConfigHelper.setOutputCql(job.getConfiguration(), query);
         ConfigHelper.setOutputInitialAddress(job.getConfiguration(), "206.189.16.183");
