@@ -6,7 +6,7 @@
 
     <groupId>wordcount-cassandra</groupId>
     <artifactId>com.zurfyx.wordcount-cassandra</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-DEMO</version>
 
 
     <dependencies>
